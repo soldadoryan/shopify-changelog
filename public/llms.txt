@@ -1,0 +1,18 @@
+# Changelog Shopify Dev (não oficial)
+
+> Visualizador não oficial do changelog de desenvolvedores da Shopify: mudanças em APIs, apps e temas, com destaque para Action Required, Breaking e Deprecation. Fonte original: https://shopify.dev/changelog
+
+## Páginas principais
+
+- [Início](https://SEU-DOMINIO.vercel.app/): lista de todas as mudanças, com busca e filtros por área e versão da API
+- [Ações necessárias](https://SEU-DOMINIO.vercel.app/?type=Action%20Required): mudanças que exigem ação do desenvolvedor
+- [Mudanças que quebram a API](https://SEU-DOMINIO.vercel.app/?type=Breaking%20API%20Change): alterações incompatíveis com versões anteriores
+- [Descontinuações](https://SEU-DOMINIO.vercel.app/?type=Deprecation%20announcement): recursos que serão removidos
+
+## Índices
+
+- [Sitemap](https://SEU-DOMINIO.vercel.app/sitemap.xml): URLs de todas as páginas de itens
+
+## Fonte oficial
+
+- [Feed RSS do changelog da Shopify](https://shopify.dev/changelog/feed.xml): feed original que alimenta este site

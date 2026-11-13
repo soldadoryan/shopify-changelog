@@ -1,0 +1,349 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+  <channel>
+    <title>Recent changes to Shopify's platform</title>
+    <link>https://shopify.dev/changelog</link>
+    <description>Shopify's developer changelog documents all changes to Shopify's platform. Find the latest news and learn about new platform opportunities.</description>
+    <language>en-us</language>
+    <ttl>40</ttl>
+    <pubDate>Thu, 12 Nov 2026 18:20:00 +0000</pubDate>
+    <lastBuildDate>Thu, 12 Nov 2026 20:57:10 +0000</lastBuildDate>
+    <category>Changelog</category>
+    <atom:link rel="self" type="application/rss+xml" href="https://shopify.dev/changelog/feed.xml"/>
+  <item>
+    <title>Full-stack capabilities to power app analytics</title>
+    <description><![CDATA[ <div class=""><p>For app developers, building merchant-facing analytics has always meant standing up your own stack: a charting library, a data warehouse to sync merchant data into, handling currencies and locales, and a UI that never quite matched the Shopify admin. With these updates, Shopify Analytics becomes a full-stack analytics platform that apps can build on directly, offloading the infrastructure to Shopify and putting your app's data where merchants already make decisions.</p>
+<p>Here's what shipped, and how it fits together.</p>
+<br/><h2>Bring your app's data into Shopify Analytics</h2>
+<h3>Metafields</h3>
+<p>Mark a metafield definition as analytics-queryable, and it becomes a dimension in ShopifyQL alongside store data. Add, for example, a <code>campaign_source</code> metafield to an order or a <code>subscription_status</code> metafield to a customer. Merchants can group, filter, and chart on it—no ETL, no separate schema.</p>
+<pre><code class="language-sql">FROM sales
+  SHOW total_sales
+  GROUP BY order.metafields.my_app.campaign_source
+  TIMESERIES day
+VISUALIZE total_sales
+</code></pre>
+<h3>App Events (early access)</h3>
+<p>App Events in Analytics makes the custom events your app already emits queryable in Shopify Analytics. Declare events from the new registry in <code>shopify.app.toml</code>, emit them through the App Events API, and merchants can query <code>FROM app_events</code> in ShopifyQL the same way they query their store data.</p>
+<pre><code class="language-sql">FROM app_events
+  SHOW emails_sent
+  GROUP BY app_name
+  TIMESERIES day
+VISUALIZE total_sales
+</code></pre>
+<br/><h2>Query it: ShopifyQL API + dev docs</h2>
+<p>The ShopifyQL API, Shopify's analytics query layer, is now a first-class part of the platform, with schema-level reference documentation on shopify.dev. Every metric and dimension is defined in the docs with its type, description, and working examples.</p>
+<p><strong>Why it matters:</strong></p>
+<ul>
+<li>For developers: Build against a stable, versioned, schema-documented surface.</li>
+<li>For LLMs and agents: Public schema docs mean AI toolchains can generate working ShopifyQL.</li>
+</ul>
+<br/><h2>Embed it: Analytics Web Components</h2>
+<p>The same web components that render analytics in the Shopify admin— the metric card (<code>&lt;s-shopifyql-metric-card&gt;</code>), the metrics bar (<code>&lt;s-metrics-bar&gt;</code>), and its date picker (<code>&lt;s-metrics-bar-date-picker&gt;</code>)—are now available for third-party apps to embed. Render a chart with a single element:</p>
+<pre><code class="language-html">&lt;s-shopifyql-metric-card
+  heading=&quot;My weekly sales&quot;
+  query=&quot;FROM sales SHOW total_sales TIMESERIES week VISUALIZE total_sales TYPE bar&quot;&gt;
+&lt;/s-shopifyql-metric-card&gt;
+</code></pre>
+<p>Load <code>analytics-ui.js</code> (after <code>polaris.js</code>), enable Direct API access, then drop in the element. No charting library. No currency or locale handling. No data-formatting code. The component runs the query, renders the chart, and stays in sync with the Shopify admin.</p>
+<br/><h2>Enrich it: Annotations API + Metric Targets API</h2>
+<p>Two new APIs let apps and merchants add context on top of the numbers.</p>
+<h3>Annotations API</h3>
+<p>Partner apps can now create annotations directly on merchant charts through the GraphQL Admin API. Loyalty apps can mark the day a program launched; email apps can mark a new campaign; subscription apps can mark a pricing change—with proper app attribution rendered in the chart panel.</p>
+<p>Required scopes: <code>read_analytics_annotations</code>, <code>write_analytics_annotations</code>.</p>
+<h3>Metric Targets API</h3>
+<p>Merchants can now set targets on any metric—total sales next quarter, ad-attributed revenue this week—and track progress visually inside reports and dashboards. Targets are a new core primitive in the GraphQL Admin API, so apps can create, read, and overlay them on charts programmatically.</p>
+<br/><h3>How it fits together</h3>
+<ol>
+<li>Model your data with Metafields (and App Events, in early access).</li>
+<li>Query with the ShopifyQL API.</li>
+<li>Embed with Analytics Web Components.</li>
+<li>Enrich with Annotations and Metric Targets.</li>
+</ol>
+<p>All inside Shopify, where merchants already make decisions.</p>
+<br/><h2>Get started</h2>
+<ul>
+<li><a href="https://shopify.dev/docs/apps/build/analytics" target="_blank" class="body-link">Analytics for Developers</a></li>
+<li><a href="https://shopify.dev/docs/apps/build/metafields/use-metafield-capabilities#analytics-queryable" target="_blank" class="body-link">Metafields</a></li>
+<li>App Events in Analytics — <a href="https://forms.gle/teCRjZK1AKPjzrgF9" target="_blank" class="body-link">Sign up for early access</a></li>
+<li><a href="https://shopify.dev/docs/api/shopifyql" target="_blank" class="body-link">ShopifyQL API</a></li>
+<li><a href="https://shopify.dev/docs/api/shopifyql/latest/web-components" target="_blank" class="body-link">Web Components</a></li>
+<li><a href="https://shopify.dev/docs/api/admin-graphql/2026-10/mutations/analyticsAnnotationCreate" target="_blank" class="body-link">Annotations API</a></li>
+<li><a href="https://shopify.dev/docs/api/admin-graphql/unstable/input-objects/AnalyticsTargetCreateInput" target="_blank" class="body-link">Metric Targets API</a></li>
+</ul>
+</div> ]]></description>
+    <pubDate>Tue, 21 Jul 2026 13:00:00 +0000</pubDate>
+    <atom:published>2026-07-21T13:00:00.000Z</atom:published>
+    <atom:updated>2026-08-25T19:37:58.000Z</atom:updated>
+    <category>API</category>
+    <category>New</category>
+    <category>GraphQL Admin API</category>
+    <category>App Events API</category>
+    <category>Metafields and metaobjects</category>
+    <category>ShopifyQL</category>
+    <category>2026-10</category>
+    <link>https://shopify.dev/changelog/full-stack-capabilities-to-power-app-analytics</link>
+    <guid isPermaLink="true">https://shopify.dev/changelog/full-stack-capabilities-to-power-app-analytics</guid>
+  </item>
+  <item>
+    <title>Cart and checkout permalinks now support UCP at /buy</title>
+    <description><![CDATA[ <div class=""><p>Shopify storefronts now support the UCP <code>dev.ucp.shopping.permalink</code> capability starting with UCP 2026-08-25 on a new <code>/buy</code> route. You can use a single <code>/buy</code> link to add items to a cart, prefill checkout details, and take the buyer to checkout, using the same link format on any shop that supports UCP. You don’t need to change existing integrations to keep them working.</p>
+<h2>What changed</h2>
+<p>Shops now list the <code>dev.ucp.shopping.permalink</code> capability in their UCP discovery profile at <code>/.well-known/ucp</code>, and its <code>config.endpoint</code> points to the shop’s <code>/buy</code> route.</p>
+<p>A <code>/buy</code> link encodes items in the path as <code>token:quantity</code> pairs and sets other cart and checkout fields with query parameters named by their UCP field path, such as <code>buyer/email</code> or <code>discounts/codes/0</code>.</p>
+<p>With a <code>/buy</code> link, you can:</p>
+<ul>
+<li>Add one or more items by variant ID  </li>
+<li>Prefill buyer details, such as email address  </li>
+<li>Set the buyer’s country and language  </li>
+<li>Apply discount codes  </li>
+<li>Indicate a preference for Shop Pay  </li>
+<li>Send the buyer to a specific page on the shop with a <code>continue_to</code> parameter</li>
+</ul>
+<p>If a link can’t be applied, Shopify redirects the buyer to the <code>continue_to</code> destination when it’s present, or to the shop’s storefront instead of showing an error page.</p>
+<p>Existing <code>/cart</code> permalinks keep working, although they’re now the legacy format. Shopify keeps supporting them, but new capabilities go to <code>/buy</code>. <code>/buy</code> doesn’t support selling plans, line item properties, cart notes, or cart attributes yet, so you should keep using <code>/cart</code> if you need those features.</p>
+<h2>What to do</h2>
+<p>Use <code>/buy</code> for new links, and move existing <code>/cart</code> links to <code>/buy</code> where you can. New capabilities only apply to <code>/buy</code>, and the same link format works on any business that supports UCP. Your <code>/cart</code> links keep working, so you can migrate on your own schedule. If you rely on selling plans, line item properties, cart notes, or cart attributes, keep using <code>/cart</code> for now.</p>
+<p>Permalinks don’t use capability negotiation, so you don’t need to declare <code>dev.ucp.shopping.permalink</code> in your agent profile. To build a link, read <code>config.endpoint</code> from the shop’s discovery profile instead of constructing the <code>/buy</code> URL yourself.</p>
+<p>Never put payment credentials or access tokens in a link, and avoid buyer personal details in links you share widely.</p>
+<h2>Related docs</h2>
+<ul>
+<li><a href="https://shopify.dev/docs/agents/carts-and-checkout/permalinks" target="_blank" class="body-link">Cart and checkout permalinks</a>  </li>
+<li><a href="https://ucp.dev/2026-08-25/specification/permalink/" target="_blank" class="body-link">UCP permalink specification</a></li>
+</ul>
+</div> ]]></description>
+    <pubDate>Wed, 28 Oct 2026 15:50:00 +0000</pubDate>
+    <atom:published>2026-10-28T15:50:00.000Z</atom:published>
+    <atom:updated>2026-10-28T15:50:00.000Z</atom:updated>
+    <category>UCP</category>
+    <category>New</category>
+    <category>2026-08-25</category>
+    <link>https://shopify.dev/changelog/cart-and-checkout-permalinks-now-support-ucp-at-buy</link>
+    <guid isPermaLink="true">https://shopify.dev/changelog/cart-and-checkout-permalinks-now-support-ucp-at-buy</guid>
+  </item>
+  <item>
+    <title>Analytics queryable capability is configurable in shopify.app.toml for metaobject definitions</title>
+    <description><![CDATA[ <div class=""><p>Apps can now set <a href="https://shopify.dev/docs/apps/build/metaobjects/use-metaobject-capabilities#make-your-metaobjects-queryable-in-analytics" target="_blank" class="body-link"><code>capabilities.analytics_queryable</code></a> on metaobject definitions in <code>shopify.app.toml</code>. This makes compatible fields on those definitions queryable in Shopify analytics and ShopifyQL. It applies to apps that declare metaobject definitions in their app configuration. No action is required, because the capability stays off unless you add the key.</p>
+<h2>What changed</h2>
+<p>Metaobject definitions declared under <code>[metaobjects.app.&lt;name&gt;]</code> in <code>shopify.app.toml</code> now accept <code>capabilities.analytics_queryable</code>. When you set it to <code>true</code>, any field on the definition with an analytics-compatible type, such as <code>single_line_text_field</code>, <code>number_integer</code>, <code>date</code>, or <code>product_reference</code>, becomes available as a dimension and filter in analytics reports and <a href="https://shopify.dev/docs/api/shopifyql" target="_blank" class="body-link">ShopifyQL</a>. This works wherever a product, product variant, customer, or order metafield references the metaobject. Fields with other types are ignored.</p>
+<p>Previously, an app could only set this capability through the GraphQL Admin API, and only on definitions it didn't manage in TOML. Declarative definitions are read-only through the API, so there was no way to make them queryable.</p>
+<h2>Who's affected</h2>
+<p>This applies to apps that declare metaobject definitions in <code>shopify.app.toml</code>. Existing definitions don't change. If a definition doesn't include the key, the capability stays off.</p>
+<p>It doesn't apply to these:</p>
+<ul>
+<li>Metaobject definitions that you create with the GraphQL Admin API. For those, set <code>analyticsQueryable</code> with the <code>metaobjectDefinitionCreate</code> or <code>metaobjectDefinitionUpdate</code> mutation in API version 2027-01 or later.</li>
+<li>Metaobject definitions that merchants own. Merchants turn analytics on or off for those in the Shopify admin.</li>
+</ul>
+<h2>What to do</h2>
+<p>No action is required. To make a declared metaobject definition queryable in analytics:</p>
+<ol>
+<li>Add <code>capabilities.analytics_queryable = true</code> to the definition in <code>shopify.app.toml</code>, and make sure at least one of its fields has an analytics-compatible type.</li>
+<li>Deploy your app configuration to a development store.</li>
+<li>Confirm that the definition's <code>capabilities.analyticsQueryable.enabled</code> field is <code>true</code> in GraphQL Admin API version 2027-01 or later, and that its fields appear in analytics reports for the product, variant, customer, or order metafield that references it.</li>
+</ol>
+<pre><code class="language-toml">[metaobjects.app.designer]
+name = &quot;Designer&quot;
+capabilities.analytics_queryable = true
+
+[metaobjects.app.designer.fields.country]
+name = &quot;Country&quot;
+type = &quot;single_line_text_field&quot;
+</code></pre>
+<p>This example makes the <code>country</code> field of the <code>designer</code> metaobject queryable. Replace the definition and fields with your own. If none of a definition's fields has a compatible type, the release fails validation, so add or change a field before you deploy.</p>
+<h2>Related docs</h2>
+<ul>
+<li><a href="https://shopify.dev/docs/apps/build/metaobjects/use-metaobject-capabilities#make-your-metaobjects-queryable-in-analytics" target="_blank" class="body-link">Make your metaobjects queryable in analytics</a></li>
+<li><a href="https://shopify.dev/docs/apps/build/metaobjects/manage-metaobject-definitions#toml-reference" target="_blank" class="body-link">Metaobject TOML reference</a></li>
+<li><a href="https://shopify.dev/docs/api/admin-graphql/2027-01/mutations/metaobjectDefinitionCreate" target="_blank" class="body-link"><code>metaobjectDefinitionCreate</code> mutation</a></li>
+</ul>
+</div> ]]></description>
+    <pubDate>Fri, 23 Oct 2026 16:00:00 +0000</pubDate>
+    <atom:published>2026-10-23T16:00:00.000Z</atom:published>
+    <atom:updated>2026-10-27T18:33:38.000Z</atom:updated>
+    <category>API</category>
+    <category>New</category>
+    <link>https://shopify.dev/changelog/analytics-queryable-capability-is-configurable-in-shopify-app-toml-for-metaobject-definitions</link>
+    <guid isPermaLink="true">https://shopify.dev/changelog/analytics-queryable-capability-is-configurable-in-shopify-app-toml-for-metaobject-definitions</guid>
+  </item>
+  <item>
+    <title>orderCreate line items support custom IDs</title>
+    <description><![CDATA[ <div class=""><p>The <code>variantIdentifier</code> field on <a href="https://shopify.dev/docs/api/admin-graphql/2027-01/mutations/orderCreate" target="_blank" class="body-link"><code>orderCreate</code></a> line items is now available in GraphQL Admin API version 2027-01 and later. Previously, it was only available in the <code>unstable</code> version. You can use it to identify a product variant by its ID or by a custom ID, such as a listing ID from another system that you store in a metafield. This is an additive change to the 2027-01 release candidate, so no action is required.</p>
+<h2>What changed</h2>
+<p>In version 2027-01, <a href="https://shopify.dev/docs/api/admin-graphql/2027-01/input-objects/OrderCreateLineItemInput" target="_blank" class="body-link"><code>OrderCreateLineItemInput</code></a> includes the <code>variantIdentifier</code> field. Provide exactly one of the following:</p>
+<ul>
+<li><code>id</code>: the global ID of the product variant.</li>
+<li><code>customId</code>: the <code>namespace</code>, <code>key</code> and <code>value</code> of an <code>id</code> metafield on the product variant. If you omit <code>namespace</code>, your app-reserved namespace is used.</li>
+</ul>
+<p>Use <code>variantIdentifier</code> instead of <code>variantId</code> and <code>productId</code>. If a line item sets <code>variantIdentifier</code> together with either of those fields, then <code>orderCreate</code> returns a user error with the <code>INVALID</code> code.</p>
+<p>To look up variants by custom ID, the store needs a metafield definition of type <code>id</code> for product variants, and your app must be able to read it. If the definition doesn't exist, then <code>orderCreate</code> returns an <code>INVALID</code> user error saying that the definition is required.</p>
+<p>If no variant in the store matches an identifier, then <code>orderCreate</code> returns a user error with the <code>VARIANT_IDENTIFIER_NOT_FOUND</code> code for that line item, and doesn't create the order. Line items that use <code>variantId</code> work as before.</p>
+<h2>Who's affected</h2>
+<p>The change applies to apps that create orders with <code>orderCreate</code>. It's most useful for sales channels and integrations that identify products by an ID from an external system.</p>
+<ul>
+<li>API version 2027-01 and later include <code>variantIdentifier</code>.</li>
+<li>API version 2026-10 and earlier don't include it.</li>
+<li>Apps that already use <code>variantIdentifier</code> on <code>unstable</code> can move to 2027-01 without changing their requests.</li>
+</ul>
+<p><code>variantIdentifier</code> needs no access scopes beyond those that <code>orderCreate</code> already requires. Custom ID lookups only find metafields that your app can read.</p>
+<h2>What to do</h2>
+<p>No action is required. To start using custom IDs on order line items:</p>
+<ol>
+<li>Check that the store has a metafield definition of type <code>id</code> for product variants, and that each variant stores its external ID in that metafield.</li>
+<li>Update your app to API version 2027-01.</li>
+<li>Pass <code>variantIdentifier</code> on each line item that you identify by custom ID:</li>
+</ol>
+<pre><code class="language-graphql">mutation {
+  orderCreate(order: {
+    lineItems: [{
+      variantIdentifier: {
+        customId: { namespace: &quot;custom&quot;, key: &quot;listing_id&quot;, value: &quot;LST-10045&quot; }
+      }
+      quantity: 1
+    }]
+  }) {
+    order { id lineItems(first: 1) { nodes { variant { id } } } }
+    userErrors { field message code }
+  }
+}
+</code></pre>
+<p>This example creates an order for the variant whose <code>custom.listing_id</code> metafield is <code>LST-10045</code>. Replace the namespace, key and value with your own metafield definition and external ID, and add the other order fields that your app normally sends.</p>
+<ol start="4">
+<li>Test in a development store. Create an order with a known custom ID and check that the line item refers to the expected variant. Then send an unknown value and check that <code>userErrors</code> returns <code>VARIANT_IDENTIFIER_NOT_FOUND</code>.</li>
+</ol>
+<h2>Why this matters</h2>
+<p>Until now, an app that knew a variant only by an external ID had two options. It could keep its own mapping from external IDs to Shopify variant IDs, or it could look up each variant with <code>productVariantByIdentifier</code> before calling <code>orderCreate</code>. Now you can pass the external ID in the same request that creates the order.</p>
+<h2>Related docs</h2>
+<ul>
+<li><a href="https://shopify.dev/docs/apps/build/metafields/working-with-custom-ids" target="_blank" class="body-link">Working with custom IDs</a></li>
+<li><a href="https://shopify.dev/docs/api/admin-graphql/2027-01/mutations/orderCreate" target="_blank" class="body-link"><code>orderCreate</code> mutation</a></li>
+<li><a href="https://shopify.dev/docs/api/admin-graphql/2027-01/input-objects/OrderCreateLineItemInput" target="_blank" class="body-link"><code>OrderCreateLineItemInput</code> reference</a></li>
+</ul>
+</div> ]]></description>
+    <pubDate>Fri, 06 Nov 2026 05:00:00 +0000</pubDate>
+    <atom:published>2026-11-06T05:00:00.000Z</atom:published>
+    <atom:updated>2026-11-10T20:30:20.000Z</atom:updated>
+    <category>API</category>
+    <category>Update</category>
+    <category>GraphQL Admin API</category>
+    <category>2027-01</category>
+    <link>https://shopify.dev/changelog/ordercreate-line-items-support-custom-ids</link>
+    <guid isPermaLink="true">https://shopify.dev/changelog/ordercreate-line-items-support-custom-ids</guid>
+  </item>
+  <item>
+    <title>App IP allowlists now support IP addresses and ASNs together, and up to 250 IPs</title>
+    <description><![CDATA[ <div class=""><p>Your app's IP allowlist in the Dev Dashboard can now include IP addresses and autonomous system numbers (ASNs) in the same allowlist. This helps apps whose requests come from a mix of static and dynamic IP addresses. You can also now configure up to 250 IP addresses or ranges, up from 100.</p>
+<h2>What changed</h2>
+<p>The IP allowlist section of your app's Settings page no longer makes you choose between IP addresses and networks. You can enter up to 250 addresses or ranges in <strong>IP addresses or CIDR ranges</strong>, up to 10 ASNs in <strong>Networks (ASN)</strong>, or both. Under <strong>Limit ASNs to countries</strong>, you can choose up to 10 countries. Countries limit only your ASNs, not your IP addresses.</p>
+<p>Requests are allowed if they match one of your configured IPs or ASNs. Requests from outside your allowlist fail with a <code>403</code> status code.</p>
+<h2>What to do</h2>
+<p>IP allowlists will soon be required for all <a href="/changelog/posts/ip-allowlists-are-now-required-for-public-apps" target="_blank" class="body-link">public</a> and <a href="/changelog/posts/ip-allowlists-are-now-required-for-custom-apps-installed-outside-your-organization" target="_blank" class="body-link">custom</a> apps. Shopify strongly recommends all apps use an IP allowlist.</p>
+<p>Allow specific IP addresses wherever you can. This is the most secure option, because only your own servers can use your app's access tokens. An ASN allows every address on your hosting provider's network, including addresses used by the provider's other customers. Add ASNs only for requests that come from dynamic addresses, such as serverless functions, and limit them to the countries your app runs in.</p>
+<p>Before you turn on enforcement, test your updated allowlist against recent traffic.</p>
+<p>For setup instructions, see <a href="/docs/apps/build/dev-dashboard/ip-allowlist" target="_blank" class="body-link">Restrict API access with an IP allowlist</a>.</p>
+</div> ]]></description>
+    <pubDate>Wed, 11 Nov 2026 22:00:00 +0000</pubDate>
+    <atom:published>2026-11-11T22:00:00.000Z</atom:published>
+    <atom:updated>2026-11-11T22:00:00.000Z</atom:updated>
+    <category>Dev Dashboard</category>
+    <category>Update</category>
+    <link>https://shopify.dev/changelog/app-ip-allowlists-now-support-ip-addresses-and-asns-together</link>
+    <guid isPermaLink="true">https://shopify.dev/changelog/app-ip-allowlists-now-support-ip-addresses-and-asns-together</guid>
+  </item>
+  <item>
+    <title>Meet the 2026 Shopify Build Award winners</title>
+    <description><![CDATA[ <div class=""><p>Every year at DotDev, we hand out the Build Awards. Not for the biggest company or the flashiest launch, but for the partners building what matters most to merchants.</p>
+<p>This year we are recognizing excellence across four categories: apps, storefronts, merchant impact, and community. Each one moves the ecosystem forward, and each one deserves to be seen.</p>
+<p>This year's winners come from seven countries. Some started in a spare room. One pair met working at Pizza Hut. What they have in common is simpler than you'd think: they got close to merchants, went deep on one problem worth solving, and kept building while everything around them changed.</p>
+<p><img src="https://cdn.shopify.com/s/files/1/0533/2089/files/Shopify_DotDev_-20260721-045A9541_2.jpg?v=1784722558" alt=""></p>
+<h2>Storefronts</h2>
+<h3>Michael Ray &amp; Rachael Yaeger, Co-founders, <a href="https://www.human-nyc.com/" target="_blank" class="body-link">Human NYC</a></h3>
+<p>Michael and Rachael met in 2009 at an influential digital agency. They left and started Human NYC in 2013 as an art gallery in Greenpoint, then grew it into a studio when they started building websites together.</p>
+<p>Thirteen years later, their edge is brand-and-build under one roof. The storytelling they design is what they ship. That combination has drawn a roster with real range from Elijah Wood's film studio SpectreVision to beauty brands like Youth To The People and Tower 28.</p>
+<p>This award recognizes their work on <a href="https://www.wendywin.com/" target="_blank" class="body-link">Wendywin</a>, a premium eyewear brand, whose storefront reads more editorial than catalog, using video and animation woven through the shopping experience. The craft shows in the details, from product zoom on the collection pages to size charts mapped to each specific frame. It all ladders up to the studio's own philosophy: good humans making good work for good humans.</p>
+<h3>Simon Wesierski &amp; Michael Klim, Co-founders, <a href="https://commerce-ui.com/" target="_blank" class="body-link">Commerce UI</a></h3>
+<p>Simon and Michael were two friends who started Commerce UI six years ago with a simple goal: build the fastest storefronts with the best design, and trust that quality brings the rest. It did. Commerce UI quickly became a team of 25, international from day one.</p>
+<p>Their obsession is the small stuff: “You cannot imagine how many discussions we have about whether we should attach this animation to the scroll or not, or if the layout is flickering.”</p>
+<p>It’s their second Build Award, and their work for <a href="https://www.lupinelights.com/en" target="_blank" class="body-link">Lupine</a> is why. Interactive functionality, a complex product configurator, and B2B features all built Shopify-native in Liquid show how well they can work both edges of the platform.</p>
+<p>It's clearly a breakout year. The award news reached them mid-chaos, one co-founder eating currywurst when leaving a Linkin Park show.</p>
+<h3>Simon Corompt &amp; Maxime Berthelot, Co-founders, <a href="https://unlikely.technology/en" target="_blank" class="body-link">Unlikely</a></h3>
+<p>Simon and Maxime started Unlikely in 2016 building sites for ad agencies, not ecommerce at all. In 2020, they took on their first Shopify project, a headless build for Paris fashion brand <a href="https://yse-paris.com/en-ww" target="_blank" class="body-link">Yse</a>. The relationship has continued ever since.</p>
+<p>Demand exploded and they specialized fast. Today, nearly all their work is custom storefronts and integrations with a deep focus on craft.</p>
+<p>Yse’s storefront was built to push what Shopify can do, with an aesthetic that makes Ysé's products feel alive rather than listed. Their vision was ambitious: “We wanted to push what was possible on mobile, to make it feel a bit native, just like the apps you install from the app store.”</p>
+<p>To Simon, AI makes the craft more exciting, not less: “It doesn't make us obsolete, it just helps us do more interesting things and focus on what brings value.”</p>
+<h2>Apps</h2>
+<h3>Mike Rossi &amp; Bill Curtis, Co-founders, <a href="https://apps.shopify.com/smile-io" target="_blank" class="body-link">Smile</a></h3>
+<p>Smile began as an ecommerce agency hopping between platforms before going all in on Shopify. When a couple of clients wanted loyalty programs, the team took a shot at developing an app instead, completely free for the small businesses flooding onto Shopify.</p>
+<p>Ten years on, it's grown into one of the largest loyalty apps in the ecosystem. What sets them apart is that they've built an ecosystem of their own on top of Shopify's, a public API other developers plug into, while staying deeply integrated with the platform.</p>
+<p>Mike's hard-won thesis fits the moment exactly: “Merchants have vibe-coded an entire app over a weekend. So how do you differentiate? By getting very deep on one topic and getting really close with merchants.”</p>
+<h3>Dave Spanton &amp; Sammy Isseyegh, Co-founders, <a href="https://apps.shopify.com/5ffebd071fe3fdd067e680b765fe5fd8" target="_blank" class="body-link">Discount Kit</a></h3>
+<p>Dave and Sammy met working at Pizza Hut. “We worked on their software, not delivering pizza,” they say. They have built things together for more than a decade since.</p>
+<p>That trust is the foundation of Discount Kit: advanced, battle-tested discounting merchants rely on through multiple Black Fridays without worrying it'll over- or under-discount.</p>
+<p>It's also a showcase for what Shopify’s platform can do. The team built their discount-stacking logic natively on Shopify Functions, woven so deeply into how merchants run promotions that stores plan campaigns around it.</p>
+<p>It was built for Shopify from the start, and is still shipping new features. They've stayed deliberately lean, a tiny core team with support spread across continents.</p>
+<h3>Harel Ishay, Founder &amp; CEO, <a href="https://apps.shopify.com/staffy" target="_blank" class="body-link">Easyteam</a></h3>
+<p>Harel bootstrapped Easyteam solo just as Shopify POS was taking off. It began as workforce management for online stores, until support tickets kept asking whether it worked with POS.</p>
+<p>“I always told them, 'sure, we're doing POS,'” he says, “and then immediately went to Google and typed: what exactly is Shopify POS?”</p>
+<p>That demand became the company's defining pivot into physical retail, with an experience so native that a new hire who can ring up a sale already knows how to clock in. They’ve unlocked high-impact retail experiences for merchants: staff management, payroll, and flexible commission management, all built to feel like part of Shopify POS rather than a bolt-on.</p>
+<p>It’s a big part of how Easyteam became one of the most popular apps for Shopify POS. And Harel sees the next frontier clearly: “With all the AI capabilities, we're super excited about the physical world, because it's a lot harder to conquer.”</p>
+<div style="position: relative; width: 100%; aspect-ratio: 16 / 9;">
+ <iframe
+   src="https://www.youtube-nocookie.com/embed/SNWlu1-k2zo"
+   title="Discount Kit Shopify Build Award winner video"
+   style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"
+   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+   allowfullscreen
+ ></iframe>
+</div><h2>Community</h2>
+<h3>Emili Horncastle, Co-founder &amp; CMO, <a href="https://zapiet.com/" target="_blank" class="body-link">Zapiet</a></h3>
+<p>Emili started Zapiet 11 years ago building stores, and kept seeing the same unmet need in the forums: in-store pickup and local delivery. Their first app solved it, making them early App Store pioneers.</p>
+<p>When COVID hit, Zapiet was one of the only apps offering pickup and delivery. Shopify featured them, and the team went from 6 people to 33 in under two months, pulling in their moms and friends to triage support just to keep up.</p>
+<p>Today, it's six apps and a team spanning the globe. As the first recipient of the new community award, Emili has truly given back. Over the past year, she has brought partners together at events around the world, spoken at conferences, and shared what she's learned building Zapiet, freely and often.</p>
+<p>The relationships Emili has built in the community have taken her to unexpected places like a <em>Vogue</em> spread, and an 80s-inspired music video for a Brazilian pop star. “I have friends all over the world because of Shopify. I've attended weddings because of Shopify.”</p>
+<h2>Merchant Impact</h2>
+<h3>Adam Sharon-Zipser &amp; Jacob Osborne, Founders, <a href="https://www.elephantroom.com.au/" target="_blank" class="body-link">Elephant Room</a> and <a href="https://prosperdigital.com.au/" target="_blank" class="body-link">Prosper Digital</a></h3>
+<p>The first-ever joint award is a perfect picture of the ecosystem at its best: two partner-friends who share clients and build better together.</p>
+<p>Adam got his start helping his parents, clothing sellers in Manchester, build their online store. He turned that passion into a 40-person Sydney agency with, as he likes to say, “the complete trifecta: an app on the App Store, an online store, and an agency.”</p>
+<p>Jacob's an entrepreneur many times over, with Prosper as his eighth business. He saw Shopify's future before most, backing it early. Within three months of joining the ecosystem, he had so much work he launched Prosper.</p>
+<p>A few years ago, Jacob narrowed the agency down to what it does best: Shopify design and build. He dropped marketing, SEO, and email so the team could go deep on craft, and partnered with agencies like Elephant Room for the rest. His North Star for it all: “relentlessly ambitious, profoundly human.”</p>
+<p>Together, their work helping to grow <a href="https://lionessfashion.com/" target="_blank" class="body-link">Lioness</a> shows what real collaboration can unlock. Lioness started as a pop-up in a Sydney train station in 2009 with DTC less than 10% of their sales.</p>
+<p>Elephant Room migrated Lioness to Shopify and grew online revenue roughly 140x over five years. Prosper then helped them optimize for the next phase of scale, lifting total sales 113% and conversion 74% within six weeks. Lioness now sells in 15 countries.</p>
+<p>Every winner here was once a stranger to this stage. They were bootstrapping solo, landing a first client, talking their way into a project that felt impossible. Each year new names enter the winners list for a reason. The ecosystem keeps making room for the next person with a good idea and the ambition to build it. These are the partners shaping what commerce looks like next, and the list is far from finished.</p>
+</div> ]]></description>
+    <pubDate>Wed, 22 Jul 2026 16:00:00 +0000</pubDate>
+    <atom:published>2026-07-22T16:00:00.000Z</atom:published>
+    <atom:updated>2026-10-06T20:08:01.000Z</atom:updated>
+    <category>Platform</category>
+    <category>Update</category>
+    <link>https://shopify.dev/changelog/shopify-build-award-2026</link>
+    <guid isPermaLink="true">https://shopify.dev/changelog/shopify-build-award-2026</guid>
+  </item>
+  <item>
+    <title>Editions: Fall 2026</title>
+    <description><![CDATA[ <div class=""></div> ]]></description>
+    <pubDate>Wed, 28 Oct 2026 16:00:00 +0000</pubDate>
+    <atom:published>2026-10-28T16:00:00.000Z</atom:published>
+    <atom:updated>2026-11-02T21:35:00.000Z</atom:updated>
+
+    <link>https://shopify.dev/changelog/editions-fall-2026</link>
+    <guid isPermaLink="true">https://shopify.dev/changelog/editions-fall-2026</guid>
+  </item>
+  <item>
+    <title>Single category item</title>
+    <description><![CDATA[ <div class=""><p>Only one category here.</p></div> ]]></description>
+    <pubDate>Mon, 01 Jun 2026 10:00:00 +0000</pubDate>
+    <atom:published>2026-06-01T10:00:00.000Z</atom:published>
+    <atom:updated>2026-06-01T10:00:00.000Z</atom:updated>
+    <category>Platform</category>
+    <link>https://shopify.dev/changelog/single-category-item</link>
+    <guid isPermaLink="true">https://shopify.dev/changelog/single-category-item</guid>
+  </item>
+  <item>
+    <title>Relative link item</title>
+    <description><![CDATA[ <div class=""><p>See <a href="/docs/api/admin-graphql">the docs</a>.</p></div> ]]></description>
+    <pubDate>Sun, 31 May 2026 10:00:00 +0000</pubDate>
+    <category>New</category>
+    <category>API</category>
+    <link>/changelog/relative-link-item</link>
+    <guid isPermaLink="true">/changelog/relative-link-item</guid>
+  </item>
+  </channel>
+</rss>

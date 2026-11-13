@@ -41,6 +41,7 @@ Nunca commite valores reais; `.env*` está no `.gitignore` (exceto `.env.example
 | `FEED_URL` | não | Feed RSS (padrão `https://shopify.dev/changelog/feed.xml`) |
 | `MAX_POSTS_PER_RUN` | não | Máximo de posts por execução (padrão `5`, limitado a 1–10; valor inválido vira o padrão) |
 | `DISCORD_DRY_RUN` | não | `1` = só loga o payload; não posta e não marca `sent` |
+| `ACTIVITY_NOTICES` | não | `0` desliga os avisos de atividade (acesso, início local, deploy) |
 | `SITE_URL` | não | URL pública do site (metadata/OG), ex.: `https://meu-app.vercel.app` |
 
 Gerar o `CRON_SECRET`:
@@ -141,6 +142,16 @@ select cron.unschedule('shopify-changelog-sync');
 - Se o banco estiver fora, o site responde `500` com a página "Changelog indisponível no momento" e um botão para tentar de novo.
 - Edições em itens já existentes atualizam o site, mas não geram novo post.
 - A rota responde `401` sem Bearer correto, `502` se o feed falhar e `200` com `status: "locked"` se outro run estiver ativo.
+
+## Avisos de atividade
+
+Além dos itens do changelog, o mesmo webhook (`DISCORD_WEBHOOK_URL`) recebe avisos de atividade:
+
+- **Novo acesso** (`proxy.ts`): uma visita humana a uma página (GET HTML; sem prefetch, bots, `/api`, `/_next` ou arquivos estáticos). Mostra página, país (header `x-vercel-ip-country`), navegador/SO e origem do referer. Nunca inclui IP. Dedupe por cookie `cl_seen=1` (30 min, HttpOnly, SameSite=Lax, sem identificador). Teto de 10 avisos por minuto por instância; o excedente é descartado e contado ("+N acessos não notificados" no próximo aviso).
+- **Aplicação iniciada** (`instrumentation-node.ts`): só rodando localmente (`npm run dev` / `npm start`, nunca na Vercel). Envia o embed de início (ambiente, Node, versão; máquina sempre "local") e, em seguida, reenvia a última novidade do banco (maior `published_at`, só leitura, sem marcar nada, sem mencionar cargo, sem chamar a IA; usa o resumo já salvo) com a nota "Última novidade do changelog (reenvio ao iniciar)".
+- **Novo deploy** (`scripts/notify-deploy.mjs`, `postbuild`): só na Vercel; nunca falha o build.
+
+Envio sem retry, com timeout curto; em erro ou 429 o aviso é descartado com uma linha de log. Como desligar: `ACTIVITY_NOTICES=0`, deixar `DISCORD_WEBHOOK_URL` vazio, ou usar `DISCORD_DRY_RUN=1` (só loga). Os avisos dividem o limite de taxa do webhook com os posts do changelog.
 
 ## Scripts
 

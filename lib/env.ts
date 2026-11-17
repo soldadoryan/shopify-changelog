@@ -76,6 +76,20 @@ export function getDiscordAlertRoleId(): string | undefined {
   return raw;
 }
 
+/**
+ * URL do Workflow do Teams que recebe os itens do changelog. Opcional: ausente = não espelha no Teams;
+ * valor inválido vira aviso + ausência, nunca derruba o sync.
+ */
+export function getTeamsWebhookUrl(): string | undefined {
+  const raw = readRaw("TEAMS_WEBHOOK_URL");
+  if (raw === undefined) return undefined;
+  if (!z.url().safeParse(raw).success || !raw.startsWith("https://")) {
+    console.warn("[env] TEAMS_WEBHOOK_URL inválida (deve ser uma URL https); ignorada, sem envio ao Teams");
+    return undefined;
+  }
+  return raw;
+}
+
 /** Chave da Anthropic; ausente = sem resumo em pt-BR. */
 export function getAnthropicApiKey(): string | undefined {
   return optionalEnv("ANTHROPIC_API_KEY", z.string());

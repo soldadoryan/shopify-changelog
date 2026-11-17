@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRateLimiter } from "@/lib/activity/rate-limit";
 import { buildReplayPayload, REPLAY_CONTENT, replayLatestItem, type LatestItemSource } from "@/lib/activity/replay";
-import { buildStartPayload } from "@/lib/activity/start";
+import { buildStartPayload, buildStartTeamsPayload } from "@/lib/activity/start";
 import { countryFlag, safeText } from "@/lib/activity/text";
 import { describeUserAgent, isBotUserAgent } from "@/lib/activity/user-agent";
 import { buildVisitPayload, decideVisit, type VisitRequest } from "@/lib/activity/visit";
@@ -139,6 +139,19 @@ describe("buildStartPayload", () => {
     expect(by["Máquina"]).toBe("local");
     expect(by["Versão do app"]).toBe("0.1.0");
     expect(buildStartPayload({ nodeEnv: "development", nodeVersion: "v1" }).embeds[0].fields[0].value).toBe("development");
+  });
+});
+
+describe("buildStartTeamsPayload", () => {
+  it("builds an adaptive card with the same facts", () => {
+    const p = buildStartTeamsPayload({ nodeEnv: "production", nodeVersion: "v26.0.0", appVersion: "0.1.0" });
+    const card = p.attachments[0].content;
+    expect(p.type).toBe("message");
+    expect(card.type).toBe("AdaptiveCard");
+    expect(card.body[0]).toMatchObject({ type: "TextBlock", text: "🟢 Aplicação iniciada" });
+    const facts = card.body.find((b) => b.type === "FactSet");
+    const by = Object.fromEntries((facts && "facts" in facts ? facts.facts : []).map((f) => [f.title, f.value]));
+    expect(by).toEqual({ Ambiente: "production", Máquina: "local", Node: "v26.0.0", "Versão do app": "0.1.0" });
   });
 });
 

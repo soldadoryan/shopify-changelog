@@ -7,11 +7,14 @@ import {
   getCronSecret,
   getDiscordAlertRoleId,
   getMaxPostsPerRun,
+  getTeamsWebhookUrl,
   isDiscordDryRun,
 } from "@/lib/env";
 import { fetchFeed, parseFeed } from "@/lib/feed";
 import { summarizePt } from "@/lib/summarize";
 import { isAuthorizedBearer } from "@/lib/sync/auth";
+import { buildTeamsPayload } from "@/lib/teams/card";
+import { sendTeamsWebhook } from "@/lib/teams/send";
 import { DEFAULT_SYNC_CONFIG, runSync, type SyncLogger } from "@/lib/sync/run";
 import type { SyncResult } from "@/lib/types";
 
@@ -50,12 +53,22 @@ export async function GET(request: Request): Promise<Response> {
   try {
     const apiKey = getAnthropicApiKey();
     const summarizeLog = (m: string) => console.warn(m);
+    const teamsUrl = getTeamsWebhookUrl();
     const result = await runSync({
       repo: createSupabaseItemsRepo(),
       fetchFeed: () => fetchFeed(),
       parseFeed,
       send: (payload) =>
         sendDiscordWebhook(payload, { timeoutMs: DEFAULT_SYNC_CONFIG.sendTimeoutMs, dryRun: false }),
+      mirror: teamsUrl
+        ? async (item, summaryPt) => {
+            const res = await sendTeamsWebhook(buildTeamsPayload(item, { summaryPt }), {
+              webhookUrl: teamsUrl,
+              timeoutMs: DEFAULT_SYNC_CONFIG.mirrorTimeoutMs,
+            });
+            if (res.kind === "failed") throw new Error(res.error);
+          }
+        : null,
       summarize: apiKey ? (item) => summarizePt(item, { apiKey, log: summarizeLog }) : null,
       revalidate: revalidateChangelog,
       now: () => Date.now(),

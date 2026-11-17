@@ -1,6 +1,8 @@
-import { getDiscordWebhookUrl, isActivityNoticesEnabled, isDiscordDryRun } from "@/lib/env";
+import { getDiscordWebhookUrl, getTeamsWebhookUrl, isActivityNoticesEnabled, isDiscordDryRun } from "@/lib/env";
 import { sendDiscordWebhook } from "@/lib/discord/send";
 import type { DiscordPayload } from "@/lib/discord/embed";
+import type { TeamsPayload } from "@/lib/teams/card";
+import { sendTeamsWebhook } from "@/lib/teams/send";
 import type { ActivityPayload } from "./types";
 
 export const ACTIVITY_SEND_TIMEOUT_MS = 5_000;
@@ -32,5 +34,29 @@ export async function sendActivityNotice(payload: ActivityPayload | DiscordPaylo
     else if (result.kind === "failed") console.warn(`[activity] aviso descartado: ${result.error}`.slice(0, 200));
   } catch {
     console.warn("[activity] aviso descartado: erro inesperado");
+  }
+}
+
+/** Avisos ligados e TEAMS_WEBHOOK_URL válida. */
+export function teamsActivityConfigured(): boolean {
+  return isActivityNoticesEnabled() && getTeamsWebhookUrl() !== undefined;
+}
+
+/** Mesmo contrato do aviso do Discord, mas para o Workflow do Teams: sem retry, nunca lança. */
+export async function sendTeamsActivityNotice(payload: TeamsPayload): Promise<void> {
+  try {
+    if (!isActivityNoticesEnabled()) return;
+    const webhookUrl = getTeamsWebhookUrl();
+    if (!webhookUrl) return;
+    const result = await sendTeamsWebhook(payload, {
+      webhookUrl,
+      dryRun: isDiscordDryRun(),
+      timeoutMs: ACTIVITY_SEND_TIMEOUT_MS,
+      log: (m) => console.log(m.slice(0, 600)),
+    });
+    if (result.kind === "ok") console.log("[activity] aviso de início enviado ao Teams");
+    else if (result.kind === "failed") console.warn(`[activity] aviso ao Teams descartado: ${result.error}`.slice(0, 200));
+  } catch {
+    console.warn("[activity] aviso ao Teams descartado: erro inesperado");
   }
 }

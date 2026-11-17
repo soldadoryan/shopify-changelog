@@ -48,6 +48,8 @@ export type SyncConfig = {
   summaryTimeoutMs: number;
   /** Timeout do POST ao Discord (o mesmo passado a sendDiscordWebhook). */
   sendTimeoutMs: number;
+  /** Teto do espelhamento no Teams (corrida contra mirror). */
+  mirrorTimeoutMs: number;
   /** 429 com retry_after até este valor: espera e tenta 1x. */
   maxRateLimitWaitMs: number;
   /** Mais itens novos que isto (pós-seed) -> inseridos como skipped. */
@@ -63,6 +65,7 @@ export const DEFAULT_SYNC_CONFIG: SyncConfig = {
   hardDeadlineMs: 52_000,
   summaryTimeoutMs: 20_000,
   sendTimeoutMs: 20_000,
+  mirrorTimeoutMs: 10_000,
   maxRateLimitWaitMs: 5_000,
   floodThreshold: 50,
 };
@@ -72,6 +75,11 @@ export type SyncDeps = {
   fetchFeed: () => Promise<string>;
   parseFeed: (xml: string) => FeedItem[];
   send: (payload: DiscordPayload) => Promise<SendResult>;
+  /**
+   * Espelha no Teams um item que o Discord aceitou. Melhor esforço: lançar = falha só logada; nunca
+   * altera notify_status. null/ausente = sem TEAMS_WEBHOOK_URL.
+   */
+  mirror?: ((item: StoredItem, summaryPt: string | null) => Promise<void>) | null;
   /** null = sem ANTHROPIC_API_KEY (sem resumo). */
   summarize: ((item: StoredItem) => Promise<SummaryResult | null>) | null;
   /** revalidateChangelog(); chamado quando algo foi inserido/atualizado. */
@@ -277,6 +285,24 @@ async function notify(
     }
   };
 
+  /** Envio extra ao Teams depois do sent; nunca lança. */
+  const mirror = async (item: StoredItem, summaryPt: string | null) => {
+    if (!deps.mirror) return;
+    if (elapsed() + cfg.mirrorTimeoutMs > cfg.hardDeadlineMs) {
+      log("warn", `[sync] sem tempo para enviar ${item.guid} ao Teams; pulado`);
+      return;
+    }
+    try {
+      const done = await withTimeout(
+        deps.mirror(item, summaryPt).then(() => true),
+        cfg.mirrorTimeoutMs,
+      );
+      if (done === null) log("warn", `[sync] Teams: timeout ao enviar ${item.guid}`);
+    } catch (err) {
+      log("warn", `[sync] Teams: ${item.guid} não enviado: ${errorMessage(err)}`);
+    }
+  };
+
   /** Item cujo processamento lançou exceção (fora do envio): mantém a tentativa gasta. */
   let faulted: string | null = null;
 
@@ -291,8 +317,8 @@ async function notify(
     // a-b. Preparação: resumo + payload. Qualquer exceção aqui é do item (não do Discord): marca failed
     // mantendo a tentativa (senão o mesmo item envenenaria todo run) e segue para o próximo.
     let payload: DiscordPayload;
+    let summaryPt = item.summaryPt;
     try {
-      let summaryPt = item.summaryPt;
       if (summaryPt === null && deps.summarize !== null) {
         if (elapsed() + cfg.summaryTimeoutMs + cfg.sendTimeoutMs > cfg.hardDeadlineMs) {
           log("info", `[sync] sem tempo para resumo de ${item.guid}; postando sem resumo`);
@@ -341,6 +367,7 @@ async function notify(
       finalized.add(item.guid);
       inFlight = null;
       posted += 1;
+      await mirror(item, summaryPt);
       const { remaining, resetAfterMs } = res.rateLimit;
       const hasMore = index + 1 < claimed.length;
       if (hasMore && remaining === 0 && resetAfterMs !== null && resetAfterMs > 0) {
@@ -375,6 +402,7 @@ async function notify(
       finalized.add(item.guid);
       inFlight = null;
       posted += 1;
+      await mirror(item, summaryPt);
       return "next";
     }
 

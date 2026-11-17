@@ -36,6 +36,7 @@ Nunca commite valores reais; `.env*` está no `.gitignore` (exceto `.env.example
 | `CRON_SECRET` | sim | Bearer da rota de sync, mínimo 32 caracteres |
 | `DISCORD_WEBHOOK_URL` | sim | URL do webhook do canal |
 | `DISCORD_ALERT_ROLE_ID` | não | ID numérico do cargo mencionado em itens Action Required / Breaking API Change |
+| `TEAMS_WEBHOOK_URL` | não | URL do Workflow do Teams; espelha cada item do changelog postado no Discord (veja abaixo) |
 | `ANTHROPIC_API_KEY` | não | Liga o resumo em pt-BR; sem ela posta sem resumo |
 | `ANTHROPIC_MODEL` | não | Modelo do resumo (padrão `claude-haiku-5-5`) |
 | `FEED_URL` | não | Feed RSS (padrão `https://shopify.dev/changelog/feed.xml`) |
@@ -72,6 +73,17 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 1. No servidor: **Server Settings > Integrations > Webhooks > New Webhook**.
 2. Escolha o canal, copie a URL e coloque em `DISCORD_WEBHOOK_URL`.
 3. (Opcional) Para marcar um cargo em itens críticos, ative o modo desenvolvedor no Discord, clique com o botão direito no cargo > Copiar ID e use em `DISCORD_ALERT_ROLE_ID`.
+
+## Microsoft Teams (opcional)
+
+Cada item do changelog que o Discord aceita também é enviado a um canal do Teams, como Adaptive Card. Só os itens do changelog vão para lá; os avisos de atividade (acesso, início local, deploy) continuam só no Discord. O Teams recebe por último e sem bloquear: se ele falhar, o item continua `sent`, não é reenviado e a falha aparece só no log da Vercel (`[sync] Teams: ...`).
+
+1. No Teams, abra o canal > **⋯ (Mais opções) > Workflows**.
+2. Escolha o modelo **Postar em um canal quando uma solicitação de webhook for recebida** (*Post to a channel when a webhook request is received*).
+3. Dê um nome (ex.: `Shopify Changelog`), confirme a conta e, se pedir, a equipe e o canal. Clique em **Adicionar fluxo de trabalho**.
+4. Copie a URL gerada e coloque em `TEAMS_WEBHOOK_URL` na Vercel (Production), depois faça um redeploy.
+
+A URL contém uma assinatura (`sig=`): trate-a como segredo. As mensagens aparecem em nome de quem criou o fluxo, com o rótulo "via Workflows". Se o fluxo for apagado ou desativado, os envios falham sem afetar o Discord. O "Incoming Webhook" antigo (conectores do Office 365) foi descontinuado e não é suportado.
 
 ## Deploy na Vercel
 

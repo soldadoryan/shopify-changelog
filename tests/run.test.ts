@@ -961,3 +961,38 @@ describe("runSync — stale exhausted sending (M1)", () => {
     expect(await h.run()).toMatchObject({ remaining: 0 });
   });
 });
+
+describe("runSync — Teams mirror", () => {
+  it("mirrors only items the Discord accepted, with the summary", async () => {
+    const h = await seeded();
+    h.feed.items = range(1, 6);
+    h.replies.push(ok("a"), fail5xx);
+    const mirrored: string[] = [];
+    const r = await runSync({
+      ...h.deps(),
+      mirror: async (item, summaryPt) => {
+        mirrored.push(`${item.title}|${summaryPt}`);
+      },
+    });
+    expect(r).toMatchObject({ posted: 1, failed: 1 });
+    expect(mirrored).toEqual(["Item 4|null"]);
+  });
+
+  it("a failing or hanging mirror never changes the item status", async () => {
+    const h = await seeded({ mirrorTimeoutMs: 50 });
+    h.feed.items = range(1, 5);
+    let calls = 0;
+    const r = await runSync({
+      ...h.deps(),
+      mirror: () => {
+        calls += 1;
+        return calls === 1 ? Promise.reject(new Error("Teams respondeu 400")) : new Promise<void>(() => {});
+      },
+    });
+    expect(r).toMatchObject({ posted: 2, failed: 0, remaining: 0 });
+    expect(h.repo.row(4).notifyStatus).toBe("sent");
+    expect(h.repo.row(5).notifyStatus).toBe("sent");
+    expect(h.logs.some((l) => l.includes("não enviado: Error: Teams respondeu 400"))).toBe(true);
+    expect(h.logs.some((l) => l.includes("timeout ao enviar"))).toBe(true);
+  });
+});
